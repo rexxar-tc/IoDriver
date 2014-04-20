@@ -29,7 +29,7 @@ Everything on the IoDriver has a connector, so you just need to fit the LED then
 
 ###What's All This Profile Jazz?
 
-You get to define up to five profiles, with ten color steps, and settable transition times between each. You can name each profile; you get 31 characters. All profile data, including names, are stored on board, so they will appear exactly as you set them no matter where you load up the software. You can also store as many profiles as you like locally on your computer.
+You get to define up to five profiles, with 20 color steps, and settable transition times between each. You can name each profile; you get 31 characters. All profile data, including names, are stored on board, so they will appear exactly as you set them no matter where you load up the software. You can also store as many profiles as you like locally on your computer.
 
 When your profile is selected on your saber, it starts with the first color, then runs through a gradient to the next color. How fast this happens is based on the delay time you set. When it reaches the last color, you can choose to have it either cycle backwards through the profile, or just start over at the beginning.
 
