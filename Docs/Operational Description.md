@@ -1,8 +1,8 @@
-##Overview
+###Overview
 
 At the base level, the IoDriver is nothing more than a PWM LED driver with some fancy software. The hardware is simple and very straightforward. There are three ICs on the board; the main ATmega device, a MAX14578 USB charge detector, and a TI bq24257 lithium-ion battery charger. The relatively high current to the LEDs is switched with a FDN327N N-channel MOSFET.
 
-##General operation description
+###General operation description
 
 The LEDs are pulse width modulated to change their intensities and create different colors. The profiles store RGBW values, and we use a custom algorithm to generate the gradient sequence between each RGBW color (See color.cpp and component.cpp). The button is tied to an interrupt that increments the profile, as well as shut down and wake up the processor.
 
