@@ -1,0 +1,20 @@
+LED
+=================
+RED	6
+GREEN	9
+BLUE	5
+WHITE	10
+
+*All LED pins PWM
+-----------------
+
+
+Charge Controller
+=================
+PowerGood	11*
+
+-----------------
+
+Button		7*
+
+*Pulled low when active, enable internal pullups.
