@@ -29,9 +29,9 @@ Everything on the IoDriver has a connector, so you just need to fit the LED then
 
 ###What's All This Profile Jazz?
 
-You get to define up to five profiles, with ten color steps, and settable transition times between each. You can name each profile; you get 31 characters. All profile data, including names, are stored on board, so they will appear exactly as you set them no matter where you load up the software.
+You get to define up to five profiles, with ten color steps, and settable transition times between each. You can name each profile; you get 31 characters. All profile data, including names, are stored on board, so they will appear exactly as you set them no matter where you load up the software. You can also store as many profiles as you like locally on your computer.
 
-When your profile is selected on your saber, it starts with the first color, then runs through a gradient to the next color. How fast this happens is based on the delay time you set. When it reaches the last color, it either cycles back to the first one, or goes backwards to the first color, depending on what you set on your computer.
+When your profile is selected on your saber, it starts with the first color, then runs through a gradient to the next color. How fast this happens is based on the delay time you set. When it reaches the last color, you can choose to have it either cycle backwards through the profile, or just start over at the beginning.
 
 ###Why RGB_W_ LEDs?
 
@@ -49,12 +49,12 @@ The software is fairly simple: You pick a profile number, 1-5, name it, pick you
 
 ###Other Details
 
-The ISP connector is just copper pads. You can solder wires directly to them, or I use a pogo-pin type tool for initial programming.
+The ISP connector is just copper pads. You can solder wires directly to them; I use a custom pogo-pin type tool for initial programming.
 
-The IoDriver comes with a 2400mAh lithium ion cell. There's circuitry on the board that will detect most chargers, and will charge at up to 2A, given a powerful enough charger, iPad chargers are the best for this. With a charge rate of 2A, the battery will charge from completely dead in just over an hour, and you get over 4 hours of use. Not bad, huh?
+The IoDriver comes with a 2400mAh lithium ion cell. There's circuitry on the board that will detect most chargers, and will charge at up to 2A, given a powerful enough charger. Most smartphone chargers are capable of supplying 1A or more. At a charge rate of 2A, the battery will charge from completely dead in just over an hour, and you get over 4 hours of use. Not bad, huh?
 
 ###That's It
 
 That's about all you need to know about the IoDriver. If you're interested in building your own, or just want the nitty-gritty details, there's more documentation in the DOC folder. This includes detailed descriptions of software function and our communication protocol. There's also schematics and Gerber files for getting your own PCBs made up.
 
-If you have any questions or issues, send us a message at IoDriver@onionstorm.net
+You can contact us at [IoDriver@onionstorm.net](mailto:IoDriver@onionstorm.net)
