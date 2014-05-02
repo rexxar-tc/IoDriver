@@ -42,6 +42,8 @@ void serialRead( std::string );
 void serialWrite( std::string );
 unsigned int parse_int( std::string );
 void chargeStandalone ();
+void enableOscillator();
+void disableOscillator();
 
 
 std::vector<Sabre::Profile*> profiles;
@@ -101,6 +103,9 @@ void setup() {
     digitalWrite ( PIN_LED_W, LOW); //remove this line when white is implimented in the GUI
     attachInterrupt(4, buttonPressed, FALLING); //go to buttonPressed() when button on pin 7 goes from high to low
     Wire.begin();
+
+    //digitalWrite( 12, LOW);
+    //disabled this line for now, just in case it breaks things, will re-enable after hardware tests.
 }
 
 void loop(){
@@ -234,6 +239,7 @@ void checkPG(){
         plugged = true;
         Serial.begin(4600);
         setupCharge();
+        enableOscillator();
     }
 
     else if ( digitalRead (PIN_POWERGOOD) == LOW && plugged)    //if charge IC reports plugged in, and we were previously
@@ -246,6 +252,7 @@ void checkPG(){
         plugged = false;
         Serial.end();
         chargeStandalone();
+        disableOscillator();
     }
 
     else
@@ -253,5 +260,31 @@ void checkPG(){
         plugged = false;
         //just in case.
     }
-
 }
+
+//dark magicks ahead
+
+void disableOscillator()
+{
+   UDINT = UDINT & 0b01101111;
+   USBCON = USBCON | 0b00100000;
+   PLLCSR = PLLCSR & 0b00010001;
+   CLKSEL0 = CLKSEL0 | 0b00001000;
+   while ( (CLKSTA & 0b00000010) !=1 );
+   CLKSEL0 = CLKSEL0 & 0b11111000;
+   digitalWrite( 12, LOW ); //turns off external oscillator
+}
+
+void enableOscillator()
+{
+    digitalWrite( 12, HIGH ); //turns on external oscillator
+    UDINT = UDINT & 0b01101111;
+    CLKSEL0 = CLKSEL0 | 0b00000100;
+    while ( (CLKSTA & 0b00000001) != 1);
+    CLKSEL0 = CLKSEL0 | 0b00000001;
+    PLLCSR = PLLCSR | 0b00000010;
+    CLKSEL0 = CLKSEL0 & 0b11110100;
+    while ( (PLLCSR & 1) != 1);
+    USBCON = USBCON & 0b110010001;
+}
+

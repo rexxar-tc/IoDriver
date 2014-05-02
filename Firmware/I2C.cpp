@@ -6,6 +6,7 @@ void setupCharge();
 void setCurrent( char );
 void chargeState();
 void chargeStandalone();
+void calReference();
 
 void setupCharge()
 {
@@ -117,6 +118,7 @@ void chargeState()
         analogWrite ( PIN_LED_W, 0 );
         analogWrite ( PIN_LED_R, 0 );
         analogWrite ( PIN_LED_G, 20 );
+        calReference();
     }
 
     if ( chgStat >> 4 == 0b0011 )
