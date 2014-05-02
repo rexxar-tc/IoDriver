@@ -13,7 +13,7 @@
 #define PIN_LED_B                   5
 #define PIN_LED_W                   10
 
-#define BATTERY_MINIMUM             3400 //changed from 3200 because reasons
+#define BATTERY_MINIMUM             3400
 #define BATTERY_CRITICAL            3000
 
 #define COLOR_UPDATE_FREQUENCY      10

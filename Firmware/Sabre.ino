@@ -26,8 +26,6 @@ It will NOT work AT ALL on Rev.A!
 ########################################
 */
 
-//bool voltageLow = false; //I think this is from an older version?
-
 int getProfiles();
 void freeProfiles();
 Sabre::Profile* seekProfile( unsigned int );
@@ -128,7 +126,6 @@ void loop(){
             if ( digitalRead( PIN_BUTTON ) != 0 ) {
                 check_button = false;
                 next_profile();
-                //attachInterrupt(1, buttonPressed, FALLING);
 
             // If button is still down, check whether it has
             // been down for 2 seconds
@@ -142,7 +139,6 @@ void loop(){
                     digitalWrite( PIN_LED_W, LOW );
                     // Re-attach button interrupt
                     check_button = false;
-                    //attachInterrupt(1, buttonPressed, FALLING);
                     // Go to sleep
                     sleep_enable();
                     sleep_mode();
@@ -229,8 +225,6 @@ void buttonPressed()
     sleep_disable();
     check_button = true;
     button_time  = millis();
-
-//    detachInterrupt( 1 );
 }
 
 void checkPG(){
