@@ -1,111 +1,105 @@
 #include <profile.hpp>
 
-#include <EEPROM.h>
-
-#include <sabre.hpp>
-
 #include <Arduino.h>
 
-namespace Sabre {
+#include <iodriver.hpp>
+#include <EEPROMHandler.hpp>
+
+namespace IoDriver {
+
+ColorData Profile::colors[PROFILE_MAX_DATACOUNT];
 
 Profile::Profile()
-:   index( 0 )
+:    iaddress( -1 )
 {
 
 }
 
-Profile::Profile( const Profile& rval ) {
-
+void Profile::set_address( signed int address ) {
+    iaddress = address;
 }
 
-Profile::~Profile() {
-
-}
-
-uint8_t Profile::get_index() {
-    return index;
-}
-
-std::string Profile::get_name() {
-    return pname;
-}
-
-const std::vector<Sabre::ColorData>& Profile::get_colors() {
-    return colors;
-}
-
-int Profile::init( signed int address ) {
-    bool end_profile = 0;
-    pname = "";
-
+int Profile::init() {
     // Get index
-    index = EEPROM.read( address + PROFILE_INDEX_OFFSET );
-
-    // Get profile name
-    char letter = 0;
-    for ( int i = 0; i < PROFILE_NAME_MAX_CHARS; ++i ) {
-        // Read character and exit loop if null
-        letter = EEPROM.read( address + PROFILE_NAME_OFFSET + i );
-        if ( 0 == letter ) break;
-        // Otherwise append character to name string
-        pname += letter;
-    }
+    signed int address = iaddress;
 
     // Get profile colors
-    for ( int i = PROFILE_FIRST_COLOR_OFFSET; i < PROFILE_SIZE; i+=PROFILE_COLOR_UNIT_SIZE ) {
-        // Read color data and add to color container
-        Sabre::ColorData col;
-        col.read_color( address + i );
-        colors.push_back( col );
+    color_count = 0;
+    bool last_color = 0;
+    for ( int i = PROFILE_FIRST_DATA_OFFSET; i < PROFILE_MAX_SIZE; i+=PROFILE_DATA_UNIT_SIZE ) {
+        // Check what kind of data this is
+        uint8_t dtype = EEPROM_H.read( address+i );
+        // Ref to color data
+        switch ( dtype ) {
 
-        // Stop reading colors if last color flag is set
-        if ( col.is_last() ) break;
-    }
-
-    // Initialize color gradients
-    for ( std::vector<ColorData>::iterator iter = colors.begin(); iter < colors.end(); ++iter )
-    {
-        std::vector<ColorData>::iterator next_iter = iter + 1;
-        if ( next_iter < colors.end() )
-        {
-            iter->generate_gradient( *next_iter );
-        } else {
-            iter->generate_gradient( *colors.begin() );
+            case PROFILE_DATA_TYPE_COLOR:
+                colors[color_count].read_color( address + i );
+                ++color_count;
+                break;
+            // No data
+            case 0:
+            // Who knows
+            default:
+                last_color = 1;
         }
+
+        if ( last_color ) break;
     }
 
-    activeGradient = colors.begin();
+    // Start up the first color
+    first_color();
 
     return 0;
 }
 
-rgbw Profile::get_gradient_value() {
-    int finished = activeGradient->update_gradient();
-    const rgbw& grad = activeGradient->get_grad();
+rgbw Profile::get_color_value() {
+    if ( !color_count ) return rgbw( 0, 0, 0, 0 );
 
-    // If at end of gradient, go to next main color
-    if ( finished == 1 ) {
-        next_gradient();
+    // Call for a color update and get finished status
+    bool finished = active_color->update();
+
+    // Get the present color state for rendering
+    rgbw color = active_color->get_immediate();
+
+    // If at end of color effect, go to next color
+    if ( finished ) next_color();
+
+    return color;
+}
+
+void Profile::first_color() {
+    cindex = 0;
+    ColorData* ca = ( color_count ? &colors[cindex] : NULL );
+    set_color( ca );
+}
+
+void Profile::next_color() {
+    cindex = ( cindex+1 < color_count ? cindex+1 : 0 );
+    ColorData* ca = ( color_count ? &colors[cindex] : NULL );
+    set_color( ca );
+}
+
+ColorData* Profile::whatsnext() {
+    if ( !color_count ) return NULL;
+
+    return ( cindex+1 < color_count ? &colors[cindex+1] : &colors[0] );
+}
+
+void Profile::set_color( ColorData* color_to_set ) {
+
+    // Go to the next color
+    active_color = color_to_set;
+
+    if ( color_to_set ) {
+        // Initialize gradient if appropriate
+        if ( active_color->effects & COLOR_EFFECT_GRADIENT ) {
+            ColorData* next = whatsnext();
+            active_color->init_gradient( *next );
+        }
+
+        // Start color effect
+        active_color->start();
     }
-
-    return grad;
-}
-
-void Profile::next_gradient() {
-    if ( activeGradient+1 < colors.end() ) {
-        set_gradient( activeGradient+1 );
-    } else {
-        set_gradient( colors.begin() );
-    }
-}
-
-void Profile::set_gradient( const std::vector<ColorData>::iterator& setgradient ) {
-    activeGradient = setgradient;
-    activeGradient->reset_gradient();
-}
-
-void Profile::first_gradient() {
-    set_gradient( colors.begin() );
 }
 
 }

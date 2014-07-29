@@ -1,20 +1,18 @@
-LED
-=================
-RED	6
-GREEN	9
-BLUE	5
-WHITE	10
+Copy/Pasta'd from iodriver.hpp
 
-*All LED pins PWM
------------------
-
-
-Charge Controller
-=================
-PowerGood	11*
-
------------------
-
-Button		7*
-
-*Pulled low when active, enable internal pullups.
+PIN_BUTTON                  	2
+PIN_Q_BUTTON                	A5
+PIN_POWERGOOD               	4
+PIN_LED_R                   	6
+PIN_LED_G                   	9
+PIN_LED_B                   	5
+PIN_LED_W                   	10
+PIN_OSCILLATOR              	12
+PIN_FORMAT                      13
+PIN_CS_E                        11
+PIN_CS_BT                       7
+PIN_CS_AUX                      A4
+PIN_CS_AUX1                     A0
+PIN_CS_AUX2                     A1
+PIN_Vee                         8
+PIN_Vexp                        A2

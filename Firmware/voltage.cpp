@@ -1,35 +1,31 @@
 #include <Arduino.h>
 
-#include <sabre.hpp>
+#include <iodriver.hpp>
 
 long calOffset = 1125300; //default value
 
 void blinkRed();
 void calReference();
-int getSOC();
 
-long checkVoltage( bool withOffset ){
-  /*if (voltageLow){
-     return voltageLow;
-   }  */
-  // Read 1.1V reference against AVcc
-  // set the reference to Vcc and the measurement to the internal 1.1V reference
-  ADMUX = _BV(REFS0) | _BV(MUX4) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
-  delay(2); // Wait for Vref to settle
-  ADCSRA |= _BV(ADSC); // Start conversion
-  while (bit_is_set(ADCSRA,ADSC)); // measuring
+long checkVoltage( bool withOffset )
+{
+    // Read 1.1V reference against AVcc
+    // set the reference to Vcc and the measurement to the internal 1.1V reference
+    ADMUX = _BV(REFS0) | _BV(MUX4) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
+    delay(2); // Wait for Vref to settle
+    ADCSRA |= _BV(ADSC); // Start conversion
+    while (bit_is_set(ADCSRA,ADSC)); // measuring
 
-  uint8_t low  = ADCL; // must read ADCL first - it then locks ADCH
-  uint8_t high = ADCH; // unlocks both
+    uint8_t low  = ADCL; // must read ADCL first - it then locks ADCH
+    uint8_t high = ADCH; // unlocks both
 
-  long result = (high<<8) | low;
+    long result = (high<<8) | low;
 
-
-  return ( withOffset ? calOffset / result : result );
+    return ( withOffset ? calOffset / result : result );
 }
 
-void blinkRed(){
-    analogWrite(PIN_LED_R, 0);
+void blinkRed()
+{   analogWrite(PIN_LED_R, 0);
     analogWrite(PIN_LED_G, 0);
     analogWrite(PIN_LED_B, 0);
     analogWrite(PIN_LED_W, 0);  //turn off all LEDs
@@ -40,18 +36,13 @@ void blinkRed(){
 }
 void calReference()
 {
-    calOffset = checkVoltage( false ) * 4200;
-}
+    long voltAvg = 0;
 
-int getSOC(){
-    return (((BATTERY_MINIMUM - checkVoltage(true))/(-1*.08))/100);
-    //crude State of Charge estimation. Returns int 0-100.
+    for (int i = 0; i < 10; i++)        //average 10 samples to cancel sample jitter
+    {
+        voltAvg += checkVoltage( false );
+        delay(100);
+    }
 
-    /*
-    This is based on a linear voltage drop from 4.2V (100%)
-    to BATTERY_MINIMUM (0%).
-
-    In practice, this is very inaccurate, but good enough
-    for some basic indication of charge level.
-    */
+    calOffset = ( voltAvg / 10 ) * BATTERY_FULL;
 }
