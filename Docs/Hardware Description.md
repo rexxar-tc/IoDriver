@@ -24,9 +24,7 @@ Blue and purple are used for error indication to avoid confusion with the normal
 
 ####Battery information
 
-The ATmega device periodically checks the supply voltage, and when it falls below the BATTERY\_MINIMUM threshold (3.4V), it breaks to the blinkRed routine which, aptly, makes the LED blink red. When supply voltage falls below the BATTERY_CRITICAL threshold (3V), the processor disables the other two ICs and then goes into full shutdown mode, to save the battery from over-discharge.
-
-In the event that the battery is deeply discharged, the TI charge controller will detect this, and go through an algorithm to recover the cell. In this state, the processor will disable the LED if the MAX device reports a charger with less than 1A supply current, in order to avoid overloading the charger, as it would be supplying all the current for the LEDs (over 500mA).
+The ATmega device periodically checks the supply voltage, and when it falls below the BATTERY\_MINIMUM threshold (3.4V), it breaks to the blinkRed routine which, aptly, makes the LED blink red. When supply voltage falls below the BATTERY_CRITICAL threshold (3V), the processor disables the other two ICs and then goes into full shutdown mode, to save the battery from over-discharge. In the event that the battery is deeply discharged, the TI charge controller will detect this, and go through an algorithm to recover the cell.
 
 The processor does not check supply voltage while charging, so as to not bail into shutdown mode when it's plugged in.
 
@@ -42,7 +40,7 @@ The latest revisions of the board include footprints for both the TQFP and QFN p
 
 ####Expansion port
 
-There is a port on the back of the IoDriver board that is intended for expansion modules. Currently planned are a bluetooth module (with accompanying iOS/Android apps), and an accelerometer module. Another possibility is a sound module, though there aren't currently any plans to make such a module unless there is significant demand for it. 
+There is a port on the back of the IoDriver board that is intended for expansion modules. Currently planned are a bluetooth module (with accompanying iOS/Android apps), an accelerometer module, and a sound board.
 
 Essentially the expansion bus is just an SPI bus, with four chip select lines on the connector. Power to the expansion port is swiched with a MOSFET, to prevent the modules from consuming power when the system is supposed to be in sleep mode. Because of the body diode in the MOSFET, it's also possible to power the board from this connector for initial programming.
 
