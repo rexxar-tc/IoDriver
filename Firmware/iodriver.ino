@@ -3,9 +3,10 @@
 #include <Arduino.h>
 #include <avr/sleep.h>
 #include <avr/power.h>
-//#include <EEPROM.h> // Don't remove this include. Needed for pre-build step parsing.
+//#include <EEPROM.h> // Don't remove this (commented) include. Needed for pre-build step parsing.
 #include <Wire.h>
-
+#include <SPI.h>
+#include <SPI_io.hpp>
 #include <iodriver.hpp>
 #include <profile.hpp>
 #include <profilehandler.hpp>
@@ -20,8 +21,9 @@ void buttonPressed();
 long checkVoltage( bool );
 void checkSerial();
 void checkPG();
-void enableOscillator();
-void disableOscillator();
+void blinkRed();
+void setup_EE2();
+void initCalFactor();
 
 IoDriver::ProfileHandler ph;
 
@@ -55,82 +57,94 @@ void setup() {
     (void)ph.enum_profiles();
     (void)ph.first_profile();
 
-    for (int i = 2; i <= 13; ++i){  //set pullups on all digital pins
-        pinMode(i, INPUT_PULLUP );  //except 0 and 1, because that would bork the serial port
-    }
+    //set pin modes
+    pinMode( PIN_FORMAT, INPUT_PULLUP );
+    pinMode( PIN_CP, OUTPUT );
+    pinMode( PIN_MR, OUTPUT );
+    pinMode( PIN_DSA, OUTPUT );
+    pinMode( PIN_POWERGOOD, INPUT_PULLUP );
+    pinMode( PIN_BCD0, INPUT_PULLUP );
+    pinMode( PIN_BCD1, INPUT_PULLUP );
     pinMode( PIN_LED_R, OUTPUT );
     pinMode( PIN_LED_G, OUTPUT );
     pinMode( PIN_LED_B, OUTPUT );
     pinMode( PIN_LED_W, OUTPUT );
-    pinMode( 7, INPUT );            //for prototype board, remove this later
-    digitalWrite( PIN_Q_BUTTON, HIGH ); //switch in the button on pin 2
-    pinMode( PIN_OSCILLATOR, OUTPUT );
-    digitalWrite( PIN_OSCILLATOR, HIGH );
+
+    CS_address( 0, 0 ); //initialize all CS lines
+
+
     attachInterrupt( 1, buttonPressed, FALLING ); //go to buttonPressed() when button on pin 2 goes from high to low
+
     Wire.begin();
+    SPI.begin();
+
 
     if( digitalRead( PIN_FORMAT ) == LOW )      //format all EEPROM when PCB contacts are bridged on power up
     {
+        analogWrite( PIN_LED_R, 128 );
+        analogWrite( PIN_LED_G, 0 );
+        analogWrite( PIN_LED_B, 0 );
+        analogWrite( PIN_LED_W, 0 );
         for( int i = 0; i < EEPROM_TOTAL; i++ )
         {
             EEPROM_H.write( i, 0 );
         }
+        analogWrite( PIN_LED_R, 0 );
     }
+    initCalFactor();
 }
 
-void loop(){
-//Serial.println( freeRam() );
-/*
-    if (checkVoltage( true ) < BATTERY_CRITICAL && !plugged)
-    {
-        sleep_enable(); //turn off the saber to protect the battery
-        sleep_mode();
-    }
-    else if (checkVoltage( true ) < BATTERY_MINIMUM && !plugged)
-    {
-        blinkRed();
-    }
-*/
-    //checkPG();
+void loop()
+{
+    checkPG();
     if ( !plugged )
     {
-        if ( check_button ) {
-            // If button is up, stop checking, increment profile, and re-enable button interrupts
-            if ( digitalRead( PIN_BUTTON ) != 0 ) {
-                check_button = false;
-                ph.next_profile();
+        //check battery voltage
+        if (checkVoltage( true ) < BATTERY_CRITICAL )
+        {
+            sleep_enable(); //turn off the saber to protect the battery
+            sleep_mode();
+        }
+        else if (checkVoltage( true ) < BATTERY_MINIMUM )
+        {
+            blinkRed();
+        }
 
-            // If button is still down, check whether it has
-            // been down for 2 seconds
-            } else {
-                unsigned long time_now = millis();
-                if ( time_now - button_time >= TIME_TO_SLEEP ) {
-                    // Turn off the LEDs
-                    digitalWrite( PIN_LED_R, LOW );
-                    digitalWrite( PIN_LED_G, LOW );
-                    digitalWrite( PIN_LED_B, LOW );
-                    digitalWrite( PIN_LED_W, LOW );
-                    // Re-attach button interrupt
+        else
+        {
+            if ( check_button ) {
+                // If button is up, stop checking, increment profile, and re-enable button interrupts
+                if ( digitalRead( PIN_BUTTON ) != 0 ) {
                     check_button = false;
-                    // Go to sleep
-                    disableCharge();
-                    disableOscillator();
-                    sleep_enable();
-                    sleep_mode();
-                    enableOscillator();
+                    ph.next_profile();
+
+                // If button is still down, check whether it has
+                // been down for 2 seconds
+                } else {
+                    unsigned long time_now = millis();
+                    if ( time_now - button_time >= TIME_TO_SLEEP ) {
+                        // Turn off the LEDs
+                        digitalWrite( PIN_LED_R, LOW );
+                        digitalWrite( PIN_LED_G, LOW );
+                        digitalWrite( PIN_LED_B, LOW );
+                        digitalWrite( PIN_LED_W, LOW );
+                        // Re-attach button interrupt
+                        check_button = false;
+                        // Go to sleep
+                        disableCharge();
+                        sleep_enable();
+                        sleep_mode();
+                    }
                 }
             }
-        }
-        checkSerial();
-
         updateLED();
+        }
     }
     else if ( plugged )
     {
         checkSerial();
         chargeState();
     }
-
 }
 
 void buttonPressed()
@@ -143,19 +157,19 @@ void buttonPressed()
     button_time  = millis();
 }
 
-void checkPG(){
+void checkPG()
+{
     if ( digitalRead (PIN_POWERGOOD) == LOW && !plugged )       //if charge IC reports plugged in, and we weren't previously
     {
         plugged = true;
         Serial.begin(14400);
         setupCharge();
         detachInterrupt(1);                                     //detach button interrupt
-        digitalWrite( PIN_Q_BUTTON, LOW );                      //switch out the button so it doesn't interfere with SDA line
     }
 
     else if ( digitalRead (PIN_POWERGOOD) == LOW && plugged)    //if charge IC reports plugged in, and we were previously
     {
-        //do nothing?
+        //do nothing
     }
 
     else if ( digitalRead (PIN_POWERGOOD) == HIGH && plugged)   //if charge IC reports unplugged
@@ -163,7 +177,6 @@ void checkPG(){
         plugged = false;
         Serial.end();
         disableCharge();
-        digitalWrite( PIN_Q_BUTTON, HIGH );                     //switch back in the button
         attachInterrupt( 1, buttonPressed, FALLING );           //and re-enable the interrupt
     }
 
@@ -171,29 +184,5 @@ void checkPG(){
     {
         plugged = false;        //just in case.
     }
-}
-
-//magic. do not touch.
-
-void disableOscillator()
-{
-    bitClear( PLLCSR, 0 );              //PLLE = 0 disable PLL
-    bitSet( CLKSEL0, 3 );               //RCE = 1 enable internal oscillator
-    while( bitRead(CLKSTA, 1) != 1);    //wait for RCON internal clock ready
-    bitClear( CLKSEL0, 0 );             //CLKS = 0 select internal clock
-    bitSet( CLKSEL0, 2 );               //EXTE = 0 disable external clock
-    digitalWrite(PIN_OSCILLATOR, LOW);  //turn off external oscillator
-}
-
-void enableOscillator()
-{
-    digitalWrite( PIN_OSCILLATOR, HIGH );//turn on external oscillator
-    delay(100);                          //wait for oscillator to stabilize
-    bitSet( CLKSEL0, 2 );                //EXTE = 1 ebable external clock
-    while( bitRead( CLKSTA, 0 ) != 1);   //wait for EXTON external clock ready
-    bitSet(CLKSEL0, 0 );                 //CLKS = 1 select external clock
-    bitSet( PLLCSR, 1 );                 //PLLE = 1 enable PLL
-    bitClear( CLKSEL0, 3 );              //RCE = 0 disable internal oscillator
-    while( bitRead( PLLCSR, 0 ) != 1 );  //wait for PLOCK pll ready
 }
 

@@ -1,11 +1,13 @@
 #include <Arduino.h>
-
+#include <EEPROMHandler.hpp>
 #include <iodriver.hpp>
 
-long calOffset = 1125300; //default value
+uint32_t calFactor = 1125300; //default value
+char calCount = 0;
 
 void blinkRed();
-void calReference();
+uint32_t calReference( bool );
+void initCalFactor();
 
 long checkVoltage( bool withOffset )
 {
@@ -21,7 +23,7 @@ long checkVoltage( bool withOffset )
 
     long result = (high<<8) | low;
 
-    return ( withOffset ? calOffset / result : result );
+    return ( withOffset ? calFactor / result : result );
 }
 
 void blinkRed()
@@ -34,15 +36,79 @@ void blinkRed()
     analogWrite(PIN_LED_R, 0);  //turn it back off
     delay(2000);                //wait two seconds
 }
-void calReference()
+uint32_t calReference( bool bufReq )
 {
     long voltAvg = 0;
+    uint32_t calBuf = 0;
+    char bytes[4];
+    char* wbytes;
 
-    for (int i = 0; i < 10; i++)        //average 10 samples to cancel sample jitter
+    for( int b = 0; b <= 3; b++ )
     {
-        voltAvg += checkVoltage( false );
-        delay(100);
+        bytes[b] = EEPROM_H.read( CAL_OFFSET + b );
     }
 
-    calOffset = ( voltAvg / 10 ) * BATTERY_FULL;
+    for ( int r = 3; r >= 0; r-- )
+    {
+        calBuf = ( calBuf << 8 ) + bytes[r];
+    }
+
+    if( bufReq )
+        return calBuf;
+
+    if ( calBuf == 0 || calBuf == 4294967295 || calCount == 4 )  //if cal value in EEPROM is all 0 or all 1 OR we've called cal 5 times
+    {                                                            //begin calibration routine
+        for (int i = 0; i < 10; i++)                             //average 10 samples to cancel sample jitter
+        {
+            voltAvg += checkVoltage( false );
+            delay(100);
+        }
+
+        calFactor = ( voltAvg / 10 ) * BATTERY_FULL;
+        calCount = 0;                               //reset calCount to 0
+        ///write calFactor into EEPROM
+        wbytes = (char*)&calFactor;            //put the bytes of calFactor into an array
+        /*
+        for( int w = 0; w <= 3; w++ )
+        {
+            wbytes[w] = EEPROM_H.write( (CAL_OFFSET + w), wbytes[w] );
+        }
+        */
+
+        EEPROM_H.write( CAL_OFFSET, wbytes[0] );
+        EEPROM_H.write( CAL_OFFSET + 1, wbytes[1] );
+        EEPROM_H.write( CAL_OFFSET + 2, wbytes[2] );
+        EEPROM_H.write( CAL_OFFSET + 3, wbytes[3] );
+
+    }
+
+    else
+    {
+        calCount ++;
+        calFactor = calBuf;
+    }
+
+}
+
+void initCalFactor()
+{
+    uint32_t calBuf = 0;
+    char bytes[4];
+
+    for( int b = 0; b <= 3; b++ )
+    {
+        bytes[b] = EEPROM_H.read( CAL_OFFSET + b );
+    }
+
+    for ( int r = 3; r >= 0; r-- )
+    {
+        calBuf = ( calBuf << 8 ) + bytes[r];
+    }
+    if( calBuf == 0 || calBuf == 4294967295 )
+    {
+        //do nothing, leave calFactor at default value
+    }
+
+    else
+        calFactor = calBuf;
 }

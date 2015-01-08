@@ -22,7 +22,7 @@
 #       ifndef HAS_SECONDARY_EEPROM
 #           define EEPROM_H_VIRTUAL_START EEPROM1_SIZE // e.g. 1024
 #       else
-#           define EEPROM_H_VIRTUAL_START EEPROM1_SIZE+EEPROM2_SIZE; // e.g. 2048
+#           define EEPROM_H_VIRTUAL_START EEPROM1_SIZE+EEPROM2_SIZE // e.g. 2048
 #       endif
 #   else
 #       define EEPROM_H_VIRTUAL_START -100-EEPROM_H_VIRTUAL_SIZE // e.g. -300
@@ -32,9 +32,7 @@
  * by 100 instead of 1 to have something cleaner like -300 to -99.
  */
 #   endif
-#
 #   define EEPROM_H_VIRTUAL_END EEPROM_H_VIRTUAL_START+EEPROM_H_VIRTUAL_SIZE-1 // e.g. 1223, 2247, -101
-#
 #endif
 
 namespace IoDriver {

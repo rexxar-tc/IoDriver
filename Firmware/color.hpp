@@ -54,6 +54,7 @@ class ColorData {
         Gradient xval;
         bool strobe_state;
         unsigned long strobe_last;
+        unsigned long strobe_next;
     };
 
     friend class Profile;

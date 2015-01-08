@@ -7,8 +7,9 @@
 #include <parser.hpp>
 #include <EEPROMHandler.hpp>
 #include <profilehandler.hpp>
+#include <I2C.hpp>
 
-extern void calReference();
+extern uint32_t calReference( bool );
 extern long checkVoltage( bool );
 
 extern int freeRam();
@@ -79,6 +80,26 @@ void cmd_write( arg_t args, int n_args ){
 
     // Send it away to be written
     write_data( atoi( arg_address ), data, n_values );
+}
+
+void cmd_erase( arg_t args, int n_args )
+{
+    char* arg_start = find_arg( "a", args, n_args );
+    char* arg_end   = find_arg( "e", args, n_args );
+    int start_address = atoi( arg_start );
+    int end_address = atoi( arg_end );
+    for( int i = start_address ; i <= end_address; i++ )
+        EEPROM_H.write( i, 0 );
+    Serial.println("Done");
+}
+
+void cmd_register( arg_t args, int n_args )
+{
+    char* arg_address = find_arg( "a", args, n_args );
+    char* arg_bytes   = find_arg( "b", args, n_args );
+    int address = atoi( arg_address );
+    int bytes = atoi( arg_bytes );
+    getRegister( address, bytes );
 }
 
 void cmd_profw( arg_t args, int n_args ) {
@@ -185,10 +206,10 @@ void cmd_voltage( arg_t args, int n_args ) {
     Serial.println(checkVoltage(true));
 }
 void cmd_calibrate( arg_t args, int n_args ) {
-        calReference();
+        calReference( false );
         Serial.println( F("done") );
         Serial.print( F("cal offset: ") );
-        Serial.println(checkVoltage( false ) * 4200);
+        Serial.println(calReference( true ));
 }
 
 void cmd_memory( arg_t args, int n_args ) {
@@ -259,6 +280,8 @@ if ( 0 == strcmp_P( cmd, (char*)F( x ) ) ) { \
     ROUTE_CMD( "memory",                cmd_memory );
     ROUTE_CMD( "preview",               cmd_preview );
     ROUTE_CMD( "reload",                cmd_reload );
+    ROUTE_CMD( "erase",                 cmd_erase );
+    ROUTE_CMD( "register",              cmd_register );
 #undef ROUTE_CMD
     if ( !routed ) {
         Serial.println( F("Unknown command.") );

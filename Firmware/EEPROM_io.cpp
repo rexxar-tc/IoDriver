@@ -66,7 +66,7 @@ signed int find_free_address() {
         // Read the index of the profile
         unsigned char j = EEPROM_H.read( address + PROFILE_INDEX_OFFSET );
         // Return if the position is free
-        if ( 0 == j ) return address;
+        if ( j < 1 || j > EEPROM1_MAX_PROFILES ) return address;
     }
 
     return -1;

@@ -697,6 +697,8 @@
 		<Unit filename="EEPROM_io.hpp" />
 		<Unit filename="I2C.cpp" />
 		<Unit filename="I2C.hpp" />
+		<Unit filename="SPI_io.cpp" />
+		<Unit filename="SPI_io.hpp" />
 		<Unit filename="color.cpp" />
 		<Unit filename="color.hpp" />
 		<Unit filename="iodriver.hpp" />
@@ -712,6 +714,7 @@
 		<Unit filename="profilehandler.hpp" />
 		<Unit filename="serial_io.cpp" />
 		<Unit filename="voltage.cpp" />
+		<Unit filename="voltage.hpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />

@@ -1,35 +1,29 @@
 #ifndef _IODRIVER_HPP
 #define _IODRIVER_HPP
 
-#define FIRMWARE_VERSION_NUMBER	        "0.3.1"
+#define FIRMWARE_VERSION_NUMBER	        "0.5.0"
 
 #ifndef HARDWARE_VERSION_NUMBER
-#define HARDWARE_VERSION_NUMBER         "C"
+#define HARDWARE_VERSION_NUMBER         "G"
 #endif
 
 //Pin definitions
 
 #define PIN_BUTTON                  	2
-#define PIN_Q_BUTTON                	A5
 #define PIN_POWERGOOD               	4
 #define PIN_LED_R                   	6
 #define PIN_LED_G                   	9
 #define PIN_LED_B                   	5
 #define PIN_LED_W                   	10
-#define PIN_OSCILLATOR              	12
-#define PIN_FORMAT                      13
-#define PIN_CS_E                        11
-#define PIN_CS_BT                       7
-#define PIN_CS_AUX                      A4
-#define PIN_CS_AUX1                     A0
-#define PIN_CS_AUX2                     A1
-#define PIN_Vee                         8
-#define PIN_Vexp                        A2
+#define PIN_FORMAT                      A1
+#define PIN_BCD0                        A0
+#define PIN_BCD1                        A2
 
 //power settings
 
 #define TIME_TO_SLEEP                   2000 // milliseconds
-#define BATTERY_FULL                    4100
+
+#define BATTERY_FULL                    4100 // millivolts
 #define BATTERY_MINIMUM             	3200
 #define BATTERY_CRITICAL            	3000
 
@@ -39,6 +33,7 @@
  * Data storage parameters
  **/
 // Data formatting specs
+#define CAL_OFFSET                       1025
 #define EEPROM1_FIRST_PROFILE_OFFSET        0
 #define PROFILE_INDEX_OFFSET                0
 #define PROFILE_INDEX_SIZE                  1
@@ -63,8 +58,10 @@
 #define PROFILE_MAX_DATACOUNT               21
 // Specifications
 #define EEPROM1_SIZE                        1024 // Used in EEPROMHandler
-#define EEPROM_TOTAL                        1024
+#define EEPROM2_SIZE                        16384
+#define EEPROM_TOTAL                        EEPROM1_SIZE + EEPROM2_SIZE
 
 #define EEPROM_H_VIRTUAL_SIZE               PROFILE_MAX_SIZE // Used in EEPROMHandler
+#define HAS_SECONDARY_EEPROM
 
 #endif // _IODRIVER_HPP

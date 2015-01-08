@@ -1,10 +1,13 @@
 #include <EEPROMHandler.hpp>
 
+#include <SPI_io.hpp>
+
 IoDriver::EEPROMHandler EEPROM_H;
 
 namespace IoDriver {
 
 uint8_t EEPROMHandler::read( int address ) {
+
 #ifdef EEPROM_H_VIRTUAL_SIZE
     if ( address >= EEPROM_H_VIRTUAL_START && address <= EEPROM_H_VIRTUAL_END ) {
         int a = address_to_virtual_index( address );
@@ -15,7 +18,7 @@ uint8_t EEPROMHandler::read( int address ) {
 #ifdef HAS_SECONDARY_EEPROM
         if ( address >= EEPROM1_SIZE ) {
             int e2_address = address - EEPROM1_SIZE;
-            // Do stuff here to read from secondary EEPROM
+            read_EE2( e2_address );
         } else
 #endif
         {
@@ -35,7 +38,7 @@ void EEPROMHandler::write( int address, uint8_t value ) {
 #ifdef HAS_SECONDARY_EEPROM
         if ( address >= EEPROM1_SIZE ) {
             int e2_address = address - EEPROM1_SIZE;
-            // Do stuff here to write to secondary EEPROM
+            write_EE2( e2_address, value );
         } else
 #endif
         {
