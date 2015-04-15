@@ -23,11 +23,20 @@
 
 #define TIME_TO_SLEEP                   2000 // milliseconds
 
-#define BATTERY_FULL                    4100 // millivolts
-#define BATTERY_MINIMUM             	3200
-#define BATTERY_CRITICAL            	3000
+                                             // ADC units
+#define BATTERY_FULL                    839  // 4.1V
+#define BATTERY_MINIMUM             	655  // 3.2V
+#define BATTERY_CRITICAL            	614  // 3V
 
 #define TIME_INTERVAL_CONVERSION_FACTOR	10	// Multiply time interval by this to get milliseconds
+
+//declarations
+
+void buttonPressed();
+void checkSerial();
+void checkPG();
+void setup_EE2();
+void blinkRed();
 
 /**
  * Data storage parameters

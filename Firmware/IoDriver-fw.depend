@@ -285,7 +285,7 @@
 	<vector>
 	<Arduino.h>
 
-1371029500 c:\users\brant\desktop\codeblocks-arduino\arduino\hardware\arduino\cores\arduino\arduino.h
+1371033100 c:\users\brant\desktop\codeblocks-arduino\arduino\hardware\arduino\cores\arduino\arduino.h
 	<stdlib.h>
 	<string.h>
 	<math.h>
@@ -298,39 +298,39 @@
 	"HardwareSerial.h"
 	"pins_arduino.h"
 
-1362983350 c:\users\brant\desktop\codeblocks-arduino\arduino\hardware\arduino\cores\arduino\binary.h
+1362986950 c:\users\brant\desktop\codeblocks-arduino\arduino\hardware\arduino\cores\arduino\binary.h
 
-1362983350 c:\users\brant\desktop\codeblocks-arduino\arduino\hardware\arduino\cores\arduino\wcharacter.h
+1362986950 c:\users\brant\desktop\codeblocks-arduino\arduino\hardware\arduino\cores\arduino\wcharacter.h
 	<ctype.h>
 
-1405279068 c:\users\brant\desktop\codeblocks-arduino\arduino\hardware\arduino\cores\arduino\wstring.h
+1405282668 c:\users\brant\desktop\codeblocks-arduino\arduino\hardware\arduino\cores\arduino\wstring.h
 	<stdlib.h>
 	<string.h>
 	<ctype.h>
 	<avr/pgmspace.h>
 
-1362983350 c:\users\brant\desktop\codeblocks-arduino\arduino\hardware\arduino\cores\arduino\hardwareserial.h
+1362986950 c:\users\brant\desktop\codeblocks-arduino\arduino\hardware\arduino\cores\arduino\hardwareserial.h
 	<inttypes.h>
 	"Stream.h"
 	"USBAPI.h"
 
-1371029228 c:\users\brant\desktop\codeblocks-arduino\arduino\hardware\arduino\cores\arduino\stream.h
+1371032828 c:\users\brant\desktop\codeblocks-arduino\arduino\hardware\arduino\cores\arduino\stream.h
 	<inttypes.h>
 	"Print.h"
 
-1362983350 c:\users\brant\desktop\codeblocks-arduino\arduino\hardware\arduino\cores\arduino\print.h
+1362986950 c:\users\brant\desktop\codeblocks-arduino\arduino\hardware\arduino\cores\arduino\print.h
 	<inttypes.h>
 	<stdio.h>
 	"WString.h"
 	"Printable.h"
 
-1362983350 c:\users\brant\desktop\codeblocks-arduino\arduino\hardware\arduino\cores\arduino\printable.h
+1362986950 c:\users\brant\desktop\codeblocks-arduino\arduino\hardware\arduino\cores\arduino\printable.h
 	<new.h>
 
-1362983350 c:\users\brant\desktop\codeblocks-arduino\arduino\hardware\arduino\cores\arduino\new.h
+1362986950 c:\users\brant\desktop\codeblocks-arduino\arduino\hardware\arduino\cores\arduino\new.h
 	<stdlib.h>
 
-1362983350 c:\users\brant\desktop\codeblocks-arduino\arduino\hardware\arduino\cores\arduino\usbapi.h
+1362986950 c:\users\brant\desktop\codeblocks-arduino\arduino\hardware\arduino\cores\arduino\usbapi.h
 
 1362983350 c:\users\brant\desktop\codeblocks-arduino\arduino\hardware\arduino\variants\leonardo\pins_arduino.h
 	<avr/pgmspace.h>
@@ -2104,45 +2104,45 @@
 1420683059 source:c:\users\brant\projects\iodriver-fw-0.4.0\spi_io.cpp
 	<SPI_io.hpp>
 
-1406745782 source:c:\users\brant\projects\iodriver-fw-0.5.0\color.cpp
+1406749382 source:c:\users\brant\projects\iodriver-fw-0.5.0\color.cpp
 	<color.hpp>
 	<Arduino.h>
 	<iodriver.hpp>
 	<EEPROMHandler.hpp>
 
-1406744564 c:\users\brant\projects\iodriver-fw-0.5.0\color.hpp
+1406748164 c:\users\brant\projects\iodriver-fw-0.5.0\color.hpp
 	<cstdlib>
 	<inttypes.h>
 
-1420705266 c:\users\brant\projects\iodriver-fw-0.5.0\iodriver.hpp
+1428687628 c:\users\brant\projects\iodriver-fw-0.5.0\iodriver.hpp
 
-1420687832 c:\users\brant\projects\iodriver-fw-0.5.0\eepromhandler.hpp
+1420691432 c:\users\brant\projects\iodriver-fw-0.5.0\eepromhandler.hpp
 	<EEPROM.h>
 	<iodriver.hpp>
 
-1406742120 source:c:\users\brant\projects\iodriver-fw-0.5.0\eeprom_io.cpp
+1406745720 source:c:\users\brant\projects\iodriver-fw-0.5.0\eeprom_io.cpp
 	<Arduino.h>
 	<iodriver.hpp>
 	<EEPROMHandler.hpp>
 
-1420687923 source:c:\users\brant\projects\iodriver-fw-0.5.0\eepromhandler.cpp
+1420691523 source:c:\users\brant\projects\iodriver-fw-0.5.0\eepromhandler.cpp
 	<EEPROMHandler.hpp>
 	<SPI_io.hpp>
 
-1420705266 c:\users\brant\projects\iodriver-fw-0.5.0\spi_io.hpp
+1428692689 c:\users\brant\projects\iodriver-fw-0.5.0\spi_io.hpp
 	<Arduino.h>
 	<iodriver.hpp>
 	<SPI.h>
 
-1420706080 source:c:\users\brant\projects\iodriver-fw-0.5.0\i2c.cpp
+1428687745 source:c:\users\brant\projects\iodriver-fw-0.5.0\i2c.cpp
 	<Arduino.h>
 	<iodriver.hpp>
 	<I2C.hpp>
 
-1420682272 c:\users\brant\projects\iodriver-fw-0.5.0\i2c.hpp
+1421734187 c:\users\brant\projects\iodriver-fw-0.5.0\i2c.hpp
 	<Wire.h>
 
-1420705266 source:c:\users\brant\projects\iodriver-fw-0.5.0\iodriver.ino
+1428687613 source:c:\users\brant\projects\iodriver-fw-0.5.0\iodriver.ino
 	<cstdlib>
 	<Arduino.h>
 	<avr/sleep.h>
@@ -2155,33 +2155,34 @@
 	<profilehandler.hpp>
 	<EEPROMHandler.hpp>
 	<I2C.hpp>
+	<voltage.hpp>
 
-1406253738 c:\users\brant\projects\iodriver-fw-0.5.0\profile.hpp
+1406257338 c:\users\brant\projects\iodriver-fw-0.5.0\profile.hpp
 	<iodriver.hpp>
 	<color.hpp>
 
-1406041238 c:\users\brant\projects\iodriver-fw-0.5.0\profilehandler.hpp
+1406044838 c:\users\brant\projects\iodriver-fw-0.5.0\profilehandler.hpp
 	<iodriver.hpp>
 	<profile.hpp>
 
-1405648964 source:c:\users\brant\projects\iodriver-fw-0.5.0\parser.cpp
+1405652564 source:c:\users\brant\projects\iodriver-fw-0.5.0\parser.cpp
 	<cstddef>
 	<string.h>
 	<parser.hpp>
 
-1406218870 c:\users\brant\projects\iodriver-fw-0.5.0\parser.hpp
+1406222470 c:\users\brant\projects\iodriver-fw-0.5.0\parser.hpp
 
-1406254312 source:c:\users\brant\projects\iodriver-fw-0.5.0\profile.cpp
+1406257912 source:c:\users\brant\projects\iodriver-fw-0.5.0\profile.cpp
 	<profile.hpp>
 	<Arduino.h>
 	<iodriver.hpp>
 	<EEPROMHandler.hpp>
 
-1406083676 source:c:\users\brant\projects\iodriver-fw-0.5.0\profilehandler.cpp
+1406087276 source:c:\users\brant\projects\iodriver-fw-0.5.0\profilehandler.cpp
 	<profilehandler.hpp>
 	<EEPROMHandler.hpp>
 
-1420689669 source:c:\users\brant\projects\iodriver-fw-0.5.0\serial_io.cpp
+1428687773 source:c:\users\brant\projects\iodriver-fw-0.5.0\serial_io.cpp
 	<cstdlib>
 	<Arduino.h>
 	<iodriver.hpp>
@@ -2190,17 +2191,24 @@
 	<EEPROMHandler.hpp>
 	<profilehandler.hpp>
 	<I2C.hpp>
+	<voltage.hpp>
 
-1406255232 c:\users\brant\projects\iodriver-fw-0.5.0\eeprom_io.hpp
+1406258832 c:\users\brant\projects\iodriver-fw-0.5.0\eeprom_io.hpp
 
-1420705266 source:c:\users\brant\projects\iodriver-fw-0.5.0\spi_io.cpp
+1428684524 source:c:\users\brant\projects\iodriver-fw-0.5.0\spi_io.cpp
 	<SPI_io.hpp>
 
-1420686276 source:c:\users\brant\projects\iodriver-fw-0.5.0\voltage.cpp
+1428687342 source:c:\users\brant\projects\iodriver-fw-0.5.0\voltage.cpp
 	<Arduino.h>
 	<EEPROMHandler.hpp>
 	<iodriver.hpp>
+	<voltage.hpp>
 
-1362983350 c:\users\brant\desktop\codeblocks-arduino\arduino\hardware\arduino\variants\standard\pins_arduino.h
+1362986950 c:\users\brant\desktop\codeblocks-arduino\arduino\hardware\arduino\variants\standard\pins_arduino.h
 	<avr/pgmspace.h>
+
+1362986950 c:\users\brant\desktop\codeblocks-arduino\arduino\hardware\arduino\variants\eightanaloginputs\pins_arduino.h
+	"../standard/pins_arduino.h"
+
+1428687577 c:\users\brant\projects\iodriver-fw-0.5.0\voltage.hpp
 

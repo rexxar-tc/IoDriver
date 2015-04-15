@@ -12,18 +12,11 @@
 #include <profilehandler.hpp>
 #include <EEPROMHandler.hpp>
 #include <I2C.hpp>
+#include <voltage.hpp>
 
 bool plugged = false;
 bool check_button = false;
 unsigned long button_time = 0;
-
-void buttonPressed();
-long checkVoltage( bool );
-void checkSerial();
-void checkPG();
-void blinkRed();
-void setup_EE2();
-void initCalFactor();
 
 IoDriver::ProfileHandler ph;
 
@@ -59,9 +52,6 @@ void setup() {
 
     //set pin modes
     pinMode( PIN_FORMAT, INPUT_PULLUP );
-    pinMode( PIN_CP, OUTPUT );
-    pinMode( PIN_MR, OUTPUT );
-    pinMode( PIN_DSA, OUTPUT );
     pinMode( PIN_POWERGOOD, INPUT_PULLUP );
     pinMode( PIN_BCD0, INPUT_PULLUP );
     pinMode( PIN_BCD1, INPUT_PULLUP );
@@ -69,9 +59,7 @@ void setup() {
     pinMode( PIN_LED_G, OUTPUT );
     pinMode( PIN_LED_B, OUTPUT );
     pinMode( PIN_LED_W, OUTPUT );
-
-    CS_address( 0, 0 ); //initialize all CS lines
-
+    pinMode( PIN_CS_E, OUTPUT );
 
     attachInterrupt( 1, buttonPressed, FALLING ); //go to buttonPressed() when button on pin 2 goes from high to low
 
@@ -85,13 +73,13 @@ void setup() {
         analogWrite( PIN_LED_G, 0 );
         analogWrite( PIN_LED_B, 0 );
         analogWrite( PIN_LED_W, 0 );
-        for( int i = 0; i < EEPROM_TOTAL; i++ )
+        for( int i = 0; i < EEPROM1_SIZE; i++ )
         {
             EEPROM_H.write( i, 0 );
         }
+        erase_EE2();
         analogWrite( PIN_LED_R, 0 );
     }
-    initCalFactor();
 }
 
 void loop()
@@ -100,12 +88,12 @@ void loop()
     if ( !plugged )
     {
         //check battery voltage
-        if (checkVoltage( true ) < BATTERY_CRITICAL )
+        if (analogRead( A7 ) < BATTERY_CRITICAL )
         {
             sleep_enable(); //turn off the saber to protect the battery
             sleep_mode();
         }
-        else if (checkVoltage( true ) < BATTERY_MINIMUM )
+        else if (analogRead( A7 ) < BATTERY_MINIMUM )
         {
             blinkRed();
         }
@@ -162,7 +150,7 @@ void checkPG()
     if ( digitalRead (PIN_POWERGOOD) == LOW && !plugged )       //if charge IC reports plugged in, and we weren't previously
     {
         plugged = true;
-        Serial.begin(14400);
+        Serial.begin(4800);
         setupCharge();
         detachInterrupt(1);                                     //detach button interrupt
     }
@@ -186,3 +174,13 @@ void checkPG()
     }
 }
 
+void blinkRed()
+{   analogWrite(PIN_LED_R, 0);
+    analogWrite(PIN_LED_G, 0);
+    analogWrite(PIN_LED_B, 0);
+    analogWrite(PIN_LED_W, 0);  //turn off all LEDs
+    analogWrite(PIN_LED_R, 50); //turn on red LED
+    delay(1000);                //wait one second
+    analogWrite(PIN_LED_R, 0);  //turn it back off
+    delay(2000);                //wait two seconds
+}

@@ -8,9 +8,7 @@
 #include <EEPROMHandler.hpp>
 #include <profilehandler.hpp>
 #include <I2C.hpp>
-
-extern uint32_t calReference( bool );
-extern long checkVoltage( bool );
+#include <voltage.hpp>
 
 extern int freeRam();
 
@@ -203,13 +201,7 @@ void cmd_profprint( arg_t args, int n_args ) {
 }
 
 void cmd_voltage( arg_t args, int n_args ) {
-    Serial.println(checkVoltage(true));
-}
-void cmd_calibrate( arg_t args, int n_args ) {
-        calReference( false );
-        Serial.println( F("done") );
-        Serial.print( F("cal offset: ") );
-        Serial.println(calReference( true ));
+    Serial.println(analogRead(A7) * 4.8); //multiply ADC value by 4.8 to get mV out
 }
 
 void cmd_memory( arg_t args, int n_args ) {
@@ -275,7 +267,6 @@ if ( 0 == strcmp_P( cmd, (char*)F( x ) ) ) { \
     ROUTE_CMD( "prof-wc",               cmd_profwc );
     ROUTE_CMD( "prof-mv",               cmd_profmv );
     ROUTE_CMD( "prof-del",              cmd_profdel );
-    ROUTE_CMD( "calibrate",             cmd_calibrate );
     ROUTE_CMD( "voltage",               cmd_voltage );
     ROUTE_CMD( "memory",                cmd_memory );
     ROUTE_CMD( "preview",               cmd_preview );

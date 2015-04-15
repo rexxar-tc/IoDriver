@@ -58,5 +58,3 @@ The IoDriver comes with a 2400mAh lithium ion cell. There's circuitry on the boa
 ##That's It
 
 That's about all you need to know about the IoDriver. If you're interested in building your own, or just want the nitty-gritty details, there's more documentation in the DOC folder. There's also schematics and Gerber files for getting your own PCBs made up.
-
-You can contact us at [IoDriver@onionstorm.net](mailto:IoDriver@onionstorm.net)

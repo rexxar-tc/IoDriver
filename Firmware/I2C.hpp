@@ -5,7 +5,7 @@
 
 // Forward declarations
 void setupCharge();
-void setCurrent( char );
+void setCurrent( int );
 void chargeState();
 void configCharger( int, int );
 void disableCharge();
