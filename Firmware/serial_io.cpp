@@ -11,6 +11,8 @@
 #include <voltage.hpp>
 
 extern int freeRam();
+unsigned long serialTimer = 0;
+int lastBuf = 0;
 
 void cmd_handshake( arg_t args, int n_args ) {
     Serial.println( F("hello") );
@@ -201,7 +203,7 @@ void cmd_profprint( arg_t args, int n_args ) {
 }
 
 void cmd_voltage( arg_t args, int n_args ) {
-    Serial.println(analogRead(A7) * 4.8); //multiply ADC value by 4.8 to get mV out
+    Serial.println((analogRead(A7) * 4.8), 0); //multiply ADC value by 4.8 to get mV out. arg 0 to give 0 decimal places
 }
 
 void cmd_memory( arg_t args, int n_args ) {
@@ -220,21 +222,53 @@ void cmd_reload( arg_t args, int n_args ) {
 }
 
 void checkSerial() {
+
+    if ( Serial.available() > 0 )                       //is there data in the serial buffer?
+    {
+
+        if( lastBuf == Serial.available() && millis() < (serialTimer + (SERIAL_DELAY)))
+        {
+            //Serial.println("DEBUG 1");
+            return;
+        }
+                                                 //if the buffer has not increased do nothing
+        else if ( lastBuf < Serial.available() )        //if buffer has increased reset the timer
+        {
+            //Serial.println("DEBUG 2");
+            lastBuf = Serial.available();
+            serialTimer = millis();
+            return;
+        }
+        else                                            //buffer has not changed for more than 3 byte periods
+        {
+            //Serial.println("DEBUG 3");
+            lastBuf = 0;
+        }
+                                            //reset the if block and continue with the program
+
+    }
+
+    if ( Serial.available() == 0 )
+        return;
     // Get the number of bytes to read and abort if there is no data
     int bufsize = Serial.available();
-    if ( !bufsize ) return;
-
     // Skip lone characters.. this happens sometimes on PuTTY,
     // when a lone \r lags behind the rest of the data being sent
     // and shows up in an iteration of this function all on its lonesome.
     if ( bufsize == 1 ) {
         (void) Serial.read();
+        //Serial.println("DEBUG 4");
         return;
     }
 
     // Create a buffer and read serial data into it
     char buffer[SERIAL_BUFFER_SIZE+1];
     Serial.readBytes ( buffer, bufsize );
+    //Serial.println("DEBUG 5");
+    /*for (int i = 0; i<= bufsize; ++i)
+    {
+        Serial.print(buffer[i]);
+    }*/
     // Make sure the buffer terminates,
     // and get rid of any carriage returns
     buffer[bufsize] = '\0';
@@ -275,6 +309,11 @@ if ( 0 == strcmp_P( cmd, (char*)F( x ) ) ) { \
     ROUTE_CMD( "register",              cmd_register );
 #undef ROUTE_CMD
     if ( !routed ) {
-        Serial.println( F("Unknown command.") );
+        Serial.print( F("Unknown command: ") );
+        for (int i = 0; i<= bufsize; ++i)
+        {
+            Serial.print(buffer[i]);
+        }
+        Serial.print("\n");
     }
 }

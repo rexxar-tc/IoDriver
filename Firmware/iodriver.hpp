@@ -7,6 +7,8 @@
 #define HARDWARE_VERSION_NUMBER         "G"
 #endif
 
+#define BAUDRATE                        57600 //serial port speed
+#define SERIAL_DELAY                    1    //ms
 //Pin definitions
 
 #define PIN_BUTTON                  	2
@@ -37,6 +39,7 @@ void checkSerial();
 void checkPG();
 void setup_EE2();
 void blinkRed();
+int checkVoltage();
 
 /**
  * Data storage parameters

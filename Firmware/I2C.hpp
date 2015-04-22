@@ -14,5 +14,6 @@ uint32_t calReference( bool );
 bool chargeTimeout();
 bool chargingTimeout();
 void getRegister( int, int );
+void buttonPressedCharge();
 
 #endif // _IODRIVER_I2C_HPP_

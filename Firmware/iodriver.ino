@@ -41,7 +41,7 @@ void updateLED() {
 }
 
 void setup() {
-    Serial.begin( 4800 ); //enable here for debug, otherwise when plugged in
+    //Serial.begin( 4800 ); //enable here for debug, otherwise when plugged in
 
     set_sleep_mode( SLEEP_MODE_PWR_DOWN );
 
@@ -52,6 +52,7 @@ void setup() {
 
     //set pin modes
     pinMode( PIN_FORMAT, INPUT_PULLUP );
+    pinMode( PIN_BUTTON, INPUT_PULLUP );
     pinMode( PIN_POWERGOOD, INPUT_PULLUP );
     pinMode( PIN_BCD0, INPUT_PULLUP );
     pinMode( PIN_BCD1, INPUT_PULLUP );
@@ -61,7 +62,7 @@ void setup() {
     pinMode( PIN_LED_W, OUTPUT );
     pinMode( PIN_CS_E, OUTPUT );
 
-    attachInterrupt( 1, buttonPressed, FALLING ); //go to buttonPressed() when button on pin 2 goes from high to low
+    attachInterrupt( 0, buttonPressed, FALLING ); //go to buttonPressed() when button on pin 2 goes from high to low
 
     Wire.begin();
     SPI.begin();
@@ -88,18 +89,20 @@ void loop()
     if ( !plugged )
     {
         //check battery voltage
-        if (analogRead( A7 ) < BATTERY_CRITICAL )
+        /*
+        if (checkVoltage() < BATTERY_CRITICAL )
         {
             sleep_enable(); //turn off the saber to protect the battery
             sleep_mode();
         }
-        else if (analogRead( A7 ) < BATTERY_MINIMUM )
+        else if (checkVoltage() < BATTERY_MINIMUM )
         {
             blinkRed();
         }
 
         else
         {
+        */
             if ( check_button ) {
                 // If button is up, stop checking, increment profile, and re-enable button interrupts
                 if ( digitalRead( PIN_BUTTON ) != 0 ) {
@@ -126,7 +129,8 @@ void loop()
                 }
             }
         updateLED();
-        }
+        //checkSerial(); ///debug line
+        //}
     }
     else if ( plugged )
     {
@@ -134,6 +138,7 @@ void loop()
         chargeState();
     }
 }
+
 
 void buttonPressed()
 {
@@ -150,9 +155,11 @@ void checkPG()
     if ( digitalRead (PIN_POWERGOOD) == LOW && !plugged )       //if charge IC reports plugged in, and we weren't previously
     {
         plugged = true;
-        Serial.begin(4800);
+        Serial.begin(BAUDRATE);
         setupCharge();
-        detachInterrupt(1);                                     //detach button interrupt
+        detachInterrupt(0);                                     //detach button interrupt
+        attachInterrupt(0, buttonPressedCharge, FALLING );      //attach new interrupt to check battery state while charging
+        //Serial.println("DEBUG LINE");
     }
 
     else if ( digitalRead (PIN_POWERGOOD) == LOW && plugged)    //if charge IC reports plugged in, and we were previously
@@ -165,7 +172,8 @@ void checkPG()
         plugged = false;
         Serial.end();
         disableCharge();
-        attachInterrupt( 1, buttonPressed, FALLING );           //and re-enable the interrupt
+        detachInterrupt(0);
+        attachInterrupt( 0, buttonPressed, FALLING );           //and re-enable the interrupt
     }
 
     else
