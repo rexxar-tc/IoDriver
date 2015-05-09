@@ -2,7 +2,7 @@
 ========
 ##About the IoDriver
 
-The IoDriver is a custom, open-source RGBW LED driver for model lightsabers. Here you'll find source code, schematics, PCB files, firmware, binaries, documentation, and various other text files. The IoDriver is also available, assembled at [our Tindie store](https://www.tindie.com/products/rexxar/iodriver/). 
+The IoDriver is a custom, open-source RGBW LED driver for model lightsabers. Here you'll find source code, schematics, PCB files, firmware, binaries, documentation, and various other text files.
 
 ###Full Feature List
 
