@@ -7,6 +7,7 @@
 bool calibrated = false;
 long chargeTime = 0;
 long chargingTime = 0;
+//extern bool chg_preview;
 ///reference datasheet for bq29700 for meanings of these binary literals.
 
 void setupCharge()
@@ -17,7 +18,7 @@ void setupCharge()
     else if(( digitalRead( PIN_BCD0 ) == 0 ) && ( digitalRead( PIN_BCD1 ) == 1 ))
         setCurrent( 500 );      //SDP, draw 500mA
     else if(( digitalRead( PIN_BCD0 ) == 1 ) && ( digitalRead( PIN_BCD1 ) == 1 ))
-        setCurrent( 1500 );     //CDP/DCP, draw 1500mA
+        setCurrent( 2000 );     //CDP/DCP, draw 1500mA
     else
         setCurrent( 100 );      //default to 100mA
 
@@ -30,23 +31,23 @@ void setCurrent( int chg_typ )         //decide current capability of charger, a
     {
 
     case 2000:
-        configCharger( 0b01010100, 0b11110000 );   //sets input current to 2000 and enables charging
+        configCharger( 0b01010100, 0b11110010 );   //sets input current to 2000 and enables charging
         break;
 
     case 1500:
-        configCharger( 0b01000100, 0b10010000 );   //sets input current to 1500 and enables charging
+        configCharger( 0b01000100, 0b10010010 );   //sets input current to 1500 and enables charging
         break;
 
     case 1000:
-        configCharger( 0b00110100, 0b01010000 );   //sets input current to 1000 and enables charging
+        configCharger( 0b00110100, 0b01010010 );   //sets input current to 1000 and enables charging
         break;
 
     case 500:
-        configCharger( 0b00100100, 0b00000000 );   //sets current to 500 and enables charging
+        configCharger( 0b00100100, 0b00000010 );   //sets current to 500 and enables charging
         break;
 
     default:
-        configCharger( 0b00000100, 0b00000000 );   //sets input current to 100 and enables charging
+        configCharger( 0b00000100, 0b00000010 );   //sets input current to 100 and enables charging
         break;
     }
 }
@@ -174,4 +175,5 @@ void buttonPressedCharge()
 {
     chargeTime = 0;
     chargingTime = 0;
+    chg_preview = false;
 }

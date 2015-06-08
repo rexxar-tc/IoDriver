@@ -1,8 +1,0 @@
-Include prebuilt firmware binaries
-
-Bugs:
--GUI program will fail and disconnect when polling for connection status [Workaround: set polling period to 10 minutes]
--When resuming from sleep, it will switch to the next profile
--Battery voltage drops due to LED current, causes premature shutdown [Workaround: battery voltage checking is disabled for now, relying on protection board]
--Opening serial port causes a reset. This is by design, but GUI can't cope [Workaround: removed C4, this means firmware is not updateable]
--Sometimes color will freeze when plugging device in, pressing the button will switch it back to the charging color

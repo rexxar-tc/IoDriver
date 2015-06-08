@@ -1,6 +1,6 @@
 ##Overview
 
-At the base level, the IoDriver is nothing more than a PWM LED driver with some fancy software. The hardware is relatively simple and straightforward. There are three major ICs on the board; the main ATmega328(p) microcontroller, a CYC7C65213 USB to serial converter, and a TI BQ24257 lithium-ion battery charger. In addition there is a 74HC164 shift register to provide chip select lines for expansion modules and a CAT25160 16kB EEPROM. The relatively high current to the LEDs is switched with FDN327N N-channel MOSFETs.
+At the base level, the IoDriver is nothing more than a PWM LED driver with some fancy software. The hardware is relatively simple and straightforward. There are three major ICs on the board; the main ATmega328(p) microcontroller, a CYC7C65213 USB to serial converter, and a TI BQ24257 lithium-ion battery charger. In addition there is a Micrel MIC2876 5v boost converter, and a CAT25160 16kB EEPROM. The relatively high current to the LEDs is switched with FDN327N N-channel MOSFETs.
 
 ##General operation description
 
@@ -13,13 +13,13 @@ The Cypress USB to serial converter has the capability to detect when the device
 
 While the IoDriver is in charge mode, it polls the charge controller for the charge status (either done, charging, or error), then sets the LED to a low-intensity color to reflect that. Amber for charging, green for done, and blue or putple for error. A request or incoming data from USB will interrupt this loop to send or receive profile information, or a color preview override.
 
-Once charging is complete, the green LED will stay lit for 5 minutes, then turn off. The system is still powered on, so it will still immediately respond to any communication from the PC software. Additionally, since the internal voltage reference used to measure supply voltage is very innacurate (though very stable), the system will perform a calibration of the reference when charging is complete, and store this value in EEPROM. This gives a more accurate measurement of battery voltage, which could prevent it from shutting off prematurely.
+During charging, the LED will stay lit for about 5 minutes, then shut off. Once charging is complete, it will come back on green for another five minutes. The system is still powered on, so it will still immediately respond to any communication from the PC software.
 
 Blue and purple are used for error indication to avoid confusion with the normal amber color. A purple error should only occur if the IoDriver is plugged in without a battery attached, and a blue error indicates any general charge error.
 
 ####Battery information
 
-The ATmega device periodically checks the supply voltage, and when it falls below the BATTERY\_MINIMUM threshold (3.4V), it breaks to the blinkRed routine which, aptly, makes the LED blink red. When supply voltage falls below the BATTERY_CRITICAL threshold (3V), the processor disables the charge controller, turns off power to the expansion bus, and then goes into full shutdown mode, to save the battery from over-discharge. In the event that the battery is deeply discharged, the TI charge controller can detect this, and will go through an algorithm to attempt to recover the cell.
+The ATmega device periodically checks the supply voltage, and when it falls below the BATTERY\_MINIMUM threshold (3.2V), it will blink red for about 10 seconds, then go into shutdown mode. The device can be woken back up, but a flag is raised in memory, locking it into low power mode until a charger is connected. In the event that the battery is deeply discharged, the TI charge controller can detect this, and will go through an algorithm to attempt to recover the cell.
 
 The processor does not check supply voltage while charging, so as to not bail into shutdown mode when it's plugged in.
 
@@ -31,12 +31,12 @@ The latest revision (G) saw the switch from the ATmega32u4 to the ATmega328(p) p
 
 Revision G also marks a major change in overall board design. All of the large parts have been put on the top side of the board, allowing for easier machine assembly.
 
-####Expansion port
+Older hardware versions had an issue where the switching FETs weren't fully turning on. Changing all of the digital circuitry to run on a 5V rail provided by the boost converter solved this problem. Because of the high current requirements, the LED supply is still taken straight from the battery.
 
-There is a port on the front of the IoDriver board that is intended for expansion modules. Currently planned are a bluetooth module (with accompanying iOS/Android apps), an accelerometer module, and a sound board.
+####Expansion connectors
 
-Essentially the expansion bus is just an SPI bus, with four chip select lines on the connector. Power to the expansion port is swiched with a MOSFET to prevent the modules consuming power when the system is supposed to be in sleep mode. Because of the body diode in the MOSFET, it's also possible to power the board from this connector for initial programming.
+There are two connectors on the front of the IoDriver board that are intended for expansion modules. Currently planned are a bluetooth module (with accompanying iOS/Android apps), an accelerometer module, and a sound board.
 
-####Format jumper
+The large connector is just an SPI bus, with two chip select lines. It also carries all power to the expansion modules, as well as acting as the first-time ISP programmer for the ATmega328. Power to the expansion port is swiched with a MOSFET to prevent the modules consuming power when the system is supposed to be in sleep mode. Because of the body diode in the MOSFET, it's also possible to power the board from this connector for initial programming.
 
-In some rare circumstances, corrupt or malformed information on the EEPROM can cause the IoDriver to crash when communicating with the PC software. Since this could possibly brick the device, there are two exposed pads on the board which will completely format all EEPROM and will recover the device. To format the device, you disconnect the battery, hold a bit of aluminum foil across the pads, then plug the battery back in. The LED will be lit red throughout the processes, whcich takes about a minute. This formats __all__ EEPROM, including battery calibration data, so it's recommended to let the IoDriver recharge fully before using it again.
+The second connector carries the I2C and RS232 Rx/Tx lines.

@@ -7,7 +7,10 @@ bool writeFirst = true;
 void select_EE2()
 {
     char RDY = 255;
+
+    digitalWrite( PIN_CS_E, HIGH );
     SPI.setBitOrder( MSBFIRST );        //SPI config stuff
+    SPI.setClockDivider( SPI_CLOCK_DIV2 );
     SPI.setDataMode( SPI_MODE0 );
     digitalWrite( PIN_CS_E, LOW );      //pull CS low to activate EEPROM
     while ( bitRead( RDY, 0 ) == 1 )    //check if device is busy
@@ -18,6 +21,7 @@ void select_EE2()
         digitalWrite( PIN_CS_E, HIGH );
         delay( 1 );                     //wait for it to finish
     }
+    digitalWrite( PIN_CS_E, LOW );
     SPI.transfer( WRSR );               //select status register write
     SPI.transfer( 2 );                  //unprotect all EEPROM2 memory space
     digitalWrite( PIN_CS_E, HIGH );
@@ -33,17 +37,15 @@ char read_EE2( int address )
 {
     char SI_buf = 0;
     char* r_bytes;
-
     select_EE2();
     SPI.transfer( READ );               //select read mode
-
     r_bytes = (char*)&address;            //put the bytes of address into an array
     SPI.transfer( r_bytes [1] );          //send individual address bytes
     SPI.transfer( r_bytes [0] );
     SI_buf = SPI.transfer( 0 );         //read the selected byte into a buffer
     digitalWrite( PIN_CS_E, HIGH );     //pull CS high to deselect EEPROM
     return SI_buf;                      //return read byte
-}
+    }
 
 void write_EE2 ( int address, char data )
 {
@@ -99,7 +101,7 @@ void bulkWrite_EE2( int address, char* data, int length )
 
     for( int i = 0; i < length; ++i )
     {
-        if(( addrBuf + i ) % 255 == 0 )         //check if we've reached the end of the current page
+        if(( addrBuf + i ) % 32 == 0 )         //check if we've reached the end of the current page
         {
             ++pageBreak;                   //increment page break counter
             digitalWrite( PIN_CS_E, HIGH );     //pull CS line high to begin write

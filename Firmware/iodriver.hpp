@@ -1,7 +1,7 @@
 #ifndef _IODRIVER_HPP
 #define _IODRIVER_HPP
 
-#define FIRMWARE_VERSION_NUMBER	        "0.5.0"
+#define FIRMWARE_VERSION_NUMBER	        "0.5.1"
 
 #ifndef HARDWARE_VERSION_NUMBER
 #define HARDWARE_VERSION_NUMBER         "G"
@@ -12,14 +12,14 @@
 //Pin definitions
 
 #define PIN_BUTTON                  	2
-#define PIN_POWERGOOD               	4
-#define PIN_LED_R                   	6
-#define PIN_LED_G                   	9
-#define PIN_LED_B                   	5
-#define PIN_LED_W                   	10
-#define PIN_FORMAT                      A1
+#define PIN_POWERGOOD               	3
+#define PIN_LED_W                   	6
+#define PIN_LED_B                   	9
+#define PIN_LED_G                   	5
+#define PIN_LED_R                   	10
 #define PIN_BCD0                        A0
 #define PIN_BCD1                        A2
+#define PIN_BATTERY                     A7
 
 //power settings
 
@@ -29,6 +29,7 @@
 #define BATTERY_FULL                    839  // 4.1V
 #define BATTERY_MINIMUM             	655  // 3.2V
 #define BATTERY_CRITICAL            	614  // 3V
+#define ADC_CONVERSION                  4.883  //converts ADC units to mV
 
 #define TIME_INTERVAL_CONVERSION_FACTOR	10	// Multiply time interval by this to get milliseconds
 
@@ -40,12 +41,18 @@ void checkPG();
 void setup_EE2();
 void blinkRed();
 int checkVoltage();
+void checkVoltDebug();
+void buttonPressedCharge();
+void wakePlugged();
+
+extern bool chg_preview;
 
 /**
  * Data storage parameters
  **/
 // Data formatting specs
 #define CAL_OFFSET                       1025
+#define BAT_LOW
 #define EEPROM1_FIRST_PROFILE_OFFSET        0
 #define PROFILE_INDEX_OFFSET                0
 #define PROFILE_INDEX_SIZE                  1

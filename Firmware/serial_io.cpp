@@ -8,11 +8,11 @@
 #include <EEPROMHandler.hpp>
 #include <profilehandler.hpp>
 #include <I2C.hpp>
-#include <voltage.hpp>
 
 extern int freeRam();
 unsigned long serialTimer = 0;
 int lastBuf = 0;
+//extern bool chg_preview;
 
 void cmd_handshake( arg_t args, int n_args ) {
     Serial.println( F("hello") );
@@ -129,6 +129,8 @@ void cmd_profw( arg_t args, int n_args ) {
     if ( arg_empty && atoi( arg_empty ) == 1 ) {
         mark_empty( index );
     }
+    // Cancel preview if active
+    chg_preview = false;
 }
 
 void cmd_profwc( arg_t args, int n_args ) {
@@ -203,7 +205,8 @@ void cmd_profprint( arg_t args, int n_args ) {
 }
 
 void cmd_voltage( arg_t args, int n_args ) {
-    Serial.println((analogRead(A7) * 4.8), 0); //multiply ADC value by 4.8 to get mV out. arg 0 to give 0 decimal places
+    //checkVoltDebug();
+    Serial.println( checkVoltage() * ADC_CONVERSION );
 }
 
 void cmd_memory( arg_t args, int n_args ) {
@@ -213,6 +216,7 @@ void cmd_memory( arg_t args, int n_args ) {
 void cmd_preview( arg_t args, int n_args ) {
     extern IoDriver::ProfileHandler ph;
     ph.preview_profile();
+    chg_preview = true;
 }
 
 void cmd_reload( arg_t args, int n_args ) {

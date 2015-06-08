@@ -18,7 +18,7 @@
 #define     PIN_CS_1        8
 #define     PIN_CS_2        7
 
-#define     PIN_Vexp        3
+#define     PIN_Vexp        4
 
 char read_EE2( int );
 void write_EE2( int, char );

@@ -1,0 +1,6 @@
+/Hardware/*.dipb*
+/Hardware/*.dchb*
+/Hardware/*.dip~
+/Hardware/*.dch~
+/Firmware/IoDriver-fw.*
+/Firmware/Build

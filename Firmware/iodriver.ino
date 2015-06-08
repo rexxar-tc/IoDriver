@@ -12,11 +12,16 @@
 #include <profilehandler.hpp>
 #include <EEPROMHandler.hpp>
 #include <I2C.hpp>
-#include <voltage.hpp>
 
 bool plugged = false;
 bool check_button = false;
+bool bat_low = false;
 unsigned long button_time = 0;
+unsigned long average_time = 0;
+long average_array[10] = {700,700,700,700,700,700,700,700,700,700};
+int average_count = 0;
+bool chg_preview = false;
+bool sleep_tst = false;
 
 IoDriver::ProfileHandler ph;
 
@@ -51,7 +56,7 @@ void setup() {
     (void)ph.first_profile();
 
     //set pin modes
-    pinMode( PIN_FORMAT, INPUT_PULLUP );
+    pinMode( A1, INPUT_PULLUP );
     pinMode( PIN_BUTTON, INPUT_PULLUP );
     pinMode( PIN_POWERGOOD, INPUT_PULLUP );
     pinMode( PIN_BCD0, INPUT_PULLUP );
@@ -61,13 +66,17 @@ void setup() {
     pinMode( PIN_LED_B, OUTPUT );
     pinMode( PIN_LED_W, OUTPUT );
     pinMode( PIN_CS_E, OUTPUT );
+    pinMode( PIN_Vexp, OUTPUT );
+
+    digitalWrite( PIN_Vexp, HIGH );     //turn on power to expansion bus
 
     attachInterrupt( 0, buttonPressed, FALLING ); //go to buttonPressed() when button on pin 2 goes from high to low
 
     Wire.begin();
     SPI.begin();
 
-
+    /*
+    //deprecated
     if( digitalRead( PIN_FORMAT ) == LOW )      //format all EEPROM when PCB contacts are bridged on power up
     {
         analogWrite( PIN_LED_R, 128 );
@@ -81,6 +90,7 @@ void setup() {
         erase_EE2();
         analogWrite( PIN_LED_R, 0 );
     }
+    */
 }
 
 void loop()
@@ -89,20 +99,18 @@ void loop()
     if ( !plugged )
     {
         //check battery voltage
-        /*
-        if (checkVoltage() < BATTERY_CRITICAL )
+        if (checkVoltage() < BATTERY_MINIMUM || bat_low == true )
         {
+            bat_low = true;
+            for( int b = 0; b < 5; ++b)
+                blinkRed();
+
             sleep_enable(); //turn off the saber to protect the battery
             sleep_mode();
-        }
-        else if (checkVoltage() < BATTERY_MINIMUM )
-        {
-            blinkRed();
         }
 
         else
         {
-        */
             if ( check_button ) {
                 // If button is up, stop checking, increment profile, and re-enable button interrupts
                 if ( digitalRead( PIN_BUTTON ) != 0 ) {
@@ -120,34 +128,55 @@ void loop()
                         digitalWrite( PIN_LED_B, LOW );
                         digitalWrite( PIN_LED_W, LOW );
                         // Re-attach button interrupt
-                        check_button = false;
                         // Go to sleep
                         disableCharge();
+                        sleep_tst = true;
+                        digitalWrite( PIN_Vexp, LOW );   //turn off power to expansion bus
+                        attachInterrupt( 1, wakePlugged, FALLING );  //attach interrupt on PG pin to wake device when plugged in
                         sleep_enable();
                         sleep_mode();
+                        digitalWrite( PIN_Vexp, HIGH );  //turn on power to expansion bus
+                        detachInterrupt( 1 );  //detach the interrupt so it doesn't interfere later
                     }
                 }
             }
         updateLED();
         //checkSerial(); ///debug line
-        //}
+        }
     }
-    else if ( plugged )
+    else if ( plugged && !chg_preview )
     {
         checkSerial();
         chargeState();
     }
+    else if ( plugged && chg_preview == true )
+    {
+        checkSerial();
+        updateLED();
+    }
 }
-
 
 void buttonPressed()
 {
     if ( check_button )
         return;
+    //if we've just resumed from sleep, set check_button false so we don't change profile
+    else if ( sleep_tst )
+    {
+        sleep_tst = false;
+        check_button = false;
+        return;
+    }
 
     sleep_disable();
     check_button = true;
     button_time  = millis();
+}
+
+void wakePlugged()
+{
+    sleep_disable();    //wake up system from sleep on charger connect
+    //that's all, folks
 }
 
 void checkPG()
@@ -159,7 +188,7 @@ void checkPG()
         setupCharge();
         detachInterrupt(0);                                     //detach button interrupt
         attachInterrupt(0, buttonPressedCharge, FALLING );      //attach new interrupt to check battery state while charging
-        //Serial.println("DEBUG LINE");
+        bat_low = false;                                        //reset bat_low
     }
 
     else if ( digitalRead (PIN_POWERGOOD) == LOW && plugged)    //if charge IC reports plugged in, and we were previously
@@ -174,6 +203,8 @@ void checkPG()
         disableCharge();
         detachInterrupt(0);
         attachInterrupt( 0, buttonPressed, FALLING );           //and re-enable the interrupt
+        chg_preview = false;                                    //cancel profile preview
+        ph.first_profile();                                     //switch to first profile
     }
 
     else
@@ -183,7 +214,8 @@ void checkPG()
 }
 
 void blinkRed()
-{   analogWrite(PIN_LED_R, 0);
+{
+    analogWrite(PIN_LED_R, 0);
     analogWrite(PIN_LED_G, 0);
     analogWrite(PIN_LED_B, 0);
     analogWrite(PIN_LED_W, 0);  //turn off all LEDs
@@ -191,4 +223,65 @@ void blinkRed()
     delay(1000);                //wait one second
     analogWrite(PIN_LED_R, 0);  //turn it back off
     delay(2000);                //wait two seconds
+    analogWrite(PIN_LED_R, 0);
+    analogWrite(PIN_LED_G, 0);
+    analogWrite(PIN_LED_B, 0);
+    analogWrite(PIN_LED_W, 0);  //turn off all LEDs
+    analogWrite(PIN_LED_R, 50); //turn on red LED
+    delay(1000);                //wait one second
+    analogWrite(PIN_LED_R, 0);  //turn it back off
+    delay(2000);                //wait two seconds
+}
+
+int checkVoltage()
+{
+    long average_hold = 0;
+    if( millis() - average_time >= 1000 )
+    {
+        average_array[average_count] = analogRead( PIN_BATTERY );
+        average_time = millis();
+        for( int a = 0; a < 10; ++a)
+        {
+            average_hold += average_array[a];
+        }
+        average_hold /= 10;
+
+        if( average_count == 9 )
+            average_count = 0;
+        else
+            average_count ++;
+
+        return average_hold;
+    }
+    else
+    {
+        for( int a = 0; a < 10; ++a)
+        {
+            average_hold += average_array[a];
+        }
+        average_hold /= 10;
+        return average_hold;
+    }
+}
+
+void checkVoltDebug()
+{
+    long average_hold = 0;
+    Serial.println( checkVoltage() );
+    Serial.println( "array contents:" );
+    for( int ar = 0; ar < 10; ++ar )
+    {
+        Serial.print( "   [" );
+        Serial.print( ar );
+        Serial.print( "]: " );
+        Serial.println( average_array[ar] );
+    }
+    for( int a = 0; a < 10; ++a)
+        {
+            average_hold += average_array[a];
+        }
+    average_hold /= 10;
+    average_hold *= ADC_CONVERSION;
+    Serial.print( "current average: " );
+    Serial.println( average_hold );
 }
