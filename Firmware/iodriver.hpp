@@ -1,7 +1,7 @@
 #ifndef _IODRIVER_HPP
 #define _IODRIVER_HPP
 
-#define FIRMWARE_VERSION_NUMBER	        "0.5.1"
+#define FIRMWARE_VERSION_NUMBER	        "0.5.2"
 
 #ifndef HARDWARE_VERSION_NUMBER
 #define HARDWARE_VERSION_NUMBER         "G"

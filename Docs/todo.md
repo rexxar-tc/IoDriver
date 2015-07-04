@@ -23,4 +23,4 @@ Fix: program now checks if we're resuming from sleep; disables profile advance
 Fix: Moved PowerGood signal to interrupt pin.
 
 ##Issues:
--Opening serial port causes a reset. This is by design, but GUI can't cope [Workaround: removed C4; this means firmware is not user updateable]
+-Opening serial port causes a reset. This is by design, but GUI can't cope [Workaround: removed C4; this means firmware is not user updateable] May include manual reset button later to allow user updates.

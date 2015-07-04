@@ -1,3 +1,9 @@
+##07/04/15
+-*Firmware version incrementerd to 0.5.2*
+-*Hardware version incremented to G2*
+-Connected D+/D- pins on bq24257 for possible future use--currently unused in firmware
+-Fixed major firmware issue where device would not wake from sleep mode, and had to be power cycled
+-Fixed condition with bq24257 where it could not recover from completely dead battery--also can now be powered by USB with no battery connected
 ##06/07/15
 -*Firmware version incremented to 0.5.1*
 -*Hardware version incremented to G1*

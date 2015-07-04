@@ -13,16 +13,12 @@ long chargingTime = 0;
 void setupCharge()
 {
     ///read in values from BCD0 and BCD1 to get current capability
-    if(( digitalRead( PIN_BCD0 ) == 1 ) && ( digitalRead( PIN_BCD1) == 0 ))
-        setCurrent( 100 );      //unconfigured, draw 100mA
-    else if(( digitalRead( PIN_BCD0 ) == 0 ) && ( digitalRead( PIN_BCD1 ) == 1 ))
-        setCurrent( 500 );      //SDP, draw 500mA
-    else if(( digitalRead( PIN_BCD0 ) == 1 ) && ( digitalRead( PIN_BCD1 ) == 1 ))
-        setCurrent( 2000 );     //CDP/DCP, draw 1500mA
+    if(( digitalRead( PIN_BCD0 ) == HIGH ) && ( digitalRead( PIN_BCD1 ) == HIGH ))
+        setCurrent( 2000 );     //CDP/DCP, draw 2000mA
     else
-        setCurrent( 100 );      //default to 100mA
+        setCurrent( 500 );      //default to 500mA
 
-    //setCurrent( 1000 ); //set 1A for testing
+    //setCurrent( 2000 ); //set 1A for testing
 }
 
 void setCurrent( int chg_typ )         //decide current capability of charger, and send to charger

@@ -33,6 +33,8 @@ Revision G also marks a major change in overall board design. All of the large p
 
 Older hardware versions had an issue where the switching FETs weren't fully turning on. Changing all of the digital circuitry to run on a 5V rail provided by the boost converter solved this problem. Because of the high current requirements, the LED supply is still taken straight from the battery.
 
+Off current is 2mA. This is low enough to be acceptable for a 2000mAh battery. It might be possible to reduce this further.
+
 ####Expansion connectors
 
 There are two connectors on the front of the IoDriver board that are intended for expansion modules. Currently planned are a bluetooth module (with accompanying iOS/Android apps), an accelerometer module, and a sound board.

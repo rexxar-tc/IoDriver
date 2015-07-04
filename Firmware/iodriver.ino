@@ -18,10 +18,11 @@ bool check_button = false;
 bool bat_low = false;
 unsigned long button_time = 0;
 unsigned long average_time = 0;
-long average_array[10] = {700,700,700,700,700,700,700,700,700,700};
+int average_array[10] = {700,700,700,700,700,700,700,700,700,700};
 int average_count = 0;
 bool chg_preview = false;
 bool sleep_tst = false;
+bool is_asleep = false;
 
 IoDriver::ProfileHandler ph;
 
@@ -32,6 +33,7 @@ int freeRam () {
 }
 
 void updateLED() {
+
     IoDriver::rgbw color;
     IoDriver::Profile* ap = ph.active();
     if ( ap ) {
@@ -56,7 +58,7 @@ void setup() {
     (void)ph.first_profile();
 
     //set pin modes
-    pinMode( A1, INPUT_PULLUP );
+    pinMode( A1, INPUT );
     pinMode( PIN_BUTTON, INPUT_PULLUP );
     pinMode( PIN_POWERGOOD, INPUT_PULLUP );
     pinMode( PIN_BCD0, INPUT_PULLUP );
@@ -74,23 +76,6 @@ void setup() {
 
     Wire.begin();
     SPI.begin();
-
-    /*
-    //deprecated
-    if( digitalRead( PIN_FORMAT ) == LOW )      //format all EEPROM when PCB contacts are bridged on power up
-    {
-        analogWrite( PIN_LED_R, 128 );
-        analogWrite( PIN_LED_G, 0 );
-        analogWrite( PIN_LED_B, 0 );
-        analogWrite( PIN_LED_W, 0 );
-        for( int i = 0; i < EEPROM1_SIZE; i++ )
-        {
-            EEPROM_H.write( i, 0 );
-        }
-        erase_EE2();
-        analogWrite( PIN_LED_R, 0 );
-    }
-    */
 }
 
 void loop()
@@ -105,8 +90,13 @@ void loop()
             for( int b = 0; b < 5; ++b)
                 blinkRed();
 
-            sleep_enable(); //turn off the saber to protect the battery
+            disableCharge();
+            digitalWrite( PIN_Vexp, LOW );   //turn off power to expansion bus
+            attachInterrupt( 1, wakePlugged, FALLING );  //attach interrupt on PG pin to wake device when plugged in
+            sleep_enable();
             sleep_mode();
+            digitalWrite( PIN_Vexp, HIGH );  //turn on power to expansion bus
+            detachInterrupt( 1 );  //detach the interrupt so it doesn't interfere later
         }
 
         else
@@ -127,12 +117,10 @@ void loop()
                         digitalWrite( PIN_LED_G, LOW );
                         digitalWrite( PIN_LED_B, LOW );
                         digitalWrite( PIN_LED_W, LOW );
-                        // Re-attach button interrupt
-                        // Go to sleep
-                        disableCharge();
-                        sleep_tst = true;
+                        check_button = false;
+                        is_asleep = true;
                         digitalWrite( PIN_Vexp, LOW );   //turn off power to expansion bus
-                        attachInterrupt( 1, wakePlugged, FALLING );  //attach interrupt on PG pin to wake device when plugged in
+                        attachInterrupt( 1, wakePlugged, LOW );  //attach interrupt on PG pin to wake device when plugged in
                         sleep_enable();
                         sleep_mode();
                         digitalWrite( PIN_Vexp, HIGH );  //turn on power to expansion bus
@@ -141,7 +129,6 @@ void loop()
                 }
             }
         updateLED();
-        //checkSerial(); ///debug line
         }
     }
     else if ( plugged && !chg_preview )
@@ -158,17 +145,17 @@ void loop()
 
 void buttonPressed()
 {
-    if ( check_button )
-        return;
+    sleep_disable();
     //if we've just resumed from sleep, set check_button false so we don't change profile
-    else if ( sleep_tst )
+    if ( is_asleep )
     {
-        sleep_tst = false;
+        is_asleep = false;
         check_button = false;
         return;
     }
+    if ( check_button )
+        return;
 
-    sleep_disable();
     check_button = true;
     button_time  = millis();
 }
@@ -189,6 +176,7 @@ void checkPG()
         detachInterrupt(0);                                     //detach button interrupt
         attachInterrupt(0, buttonPressedCharge, FALLING );      //attach new interrupt to check battery state while charging
         bat_low = false;                                        //reset bat_low
+        is_asleep = false;
     }
 
     else if ( digitalRead (PIN_POWERGOOD) == LOW && plugged)    //if charge IC reports plugged in, and we were previously
@@ -262,26 +250,4 @@ int checkVoltage()
         average_hold /= 10;
         return average_hold;
     }
-}
-
-void checkVoltDebug()
-{
-    long average_hold = 0;
-    Serial.println( checkVoltage() );
-    Serial.println( "array contents:" );
-    for( int ar = 0; ar < 10; ++ar )
-    {
-        Serial.print( "   [" );
-        Serial.print( ar );
-        Serial.print( "]: " );
-        Serial.println( average_array[ar] );
-    }
-    for( int a = 0; a < 10; ++a)
-        {
-            average_hold += average_array[a];
-        }
-    average_hold /= 10;
-    average_hold *= ADC_CONVERSION;
-    Serial.print( "current average: " );
-    Serial.println( average_hold );
 }
