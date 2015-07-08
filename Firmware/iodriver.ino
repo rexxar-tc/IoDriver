@@ -72,7 +72,8 @@ void setup() {
 
     digitalWrite( PIN_Vexp, HIGH );     //turn on power to expansion bus
 
-    attachInterrupt( 0, buttonPressed, FALLING ); //go to buttonPressed() when button on pin 2 goes from high to low
+    attachInterrupt( 0, buttonPressed, FALLING );   //go to buttonPressed() when button on pin 2 goes from high to low
+    attachInterrupt( 1, wakePlugged, FALLING );     //gp to wakePlugged() when device plugged into usb
 
     Wire.begin();
     SPI.begin();
@@ -92,11 +93,9 @@ void loop()
 
             disableCharge();
             digitalWrite( PIN_Vexp, LOW );   //turn off power to expansion bus
-            attachInterrupt( 1, wakePlugged, FALLING );  //attach interrupt on PG pin to wake device when plugged in
             sleep_enable();
             sleep_mode();
             digitalWrite( PIN_Vexp, HIGH );  //turn on power to expansion bus
-            detachInterrupt( 1 );  //detach the interrupt so it doesn't interfere later
         }
 
         else
@@ -119,12 +118,12 @@ void loop()
                         digitalWrite( PIN_LED_W, LOW );
                         check_button = false;
                         is_asleep = true;
-                        digitalWrite( PIN_Vexp, LOW );   //turn off power to expansion bus
-                        attachInterrupt( 1, wakePlugged, LOW );  //attach interrupt on PG pin to wake device when plugged in
+                        digitalWrite( PIN_Vexp, LOW );      //turn off power to expansion bus
+                        PRR |= 0b10000111;                  //turn off ADC, I2C, and UART
                         sleep_enable();
                         sleep_mode();
-                        digitalWrite( PIN_Vexp, HIGH );  //turn on power to expansion bus
-                        detachInterrupt( 1 );  //detach the interrupt so it doesn't interfere later
+                        PRR &= 0b01111000;                  //turn on ADC, I2C, and UART
+                        digitalWrite( PIN_Vexp, HIGH );     //turn on power to expansion bus
                     }
                 }
             }
@@ -163,7 +162,6 @@ void buttonPressed()
 void wakePlugged()
 {
     sleep_disable();    //wake up system from sleep on charger connect
-    //that's all, folks
 }
 
 void checkPG()
