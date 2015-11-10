@@ -1,3 +1,10 @@
+##11/10/15
+-*Hardware version incremented to H*
+-*Added hardware support for accent LEDs* (user request)
+-Added connector for buttons with built-in LEDs
+-Added support for kill-key hard power switch. This simply disables the SMPS, which reduces power use to negligible levels
+-We've officially used all available GPIO
+
 ##07/04/15
 -*Firmware version incrementerd to 0.5.2*
 -*Hardware version incremented to G2*

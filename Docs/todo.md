@@ -2,6 +2,12 @@
 Include prebuilt firmware binaries
 General code cleanup
 Optimization of SPI EEPROM routines
+Implement accent and button LEDs in firmware
+Change pin numbers to match reassigned functions
+Finish design for sound expansion
+Wait for C to fix the GUI disconnect issue
+Wait for C to implement accent LEDs in GUI
+Wait for C to implement sound
 
 ##Bugs:
 -GUI program will fail and disconnect when polling for connection status [Workaround: set polling period to 10 minutes]
@@ -19,8 +25,10 @@ Fix: Workaround caused Li protection circuit to isolate battery; charging circui
 Fix: program now actually checks if there's a preview profile coming in
 -When resuming from sleep, it will switch to the next profile
 Fix: program now checks if we're resuming from sleep; disables profile advance
--Device doesn't wake when plugged in while asleep.
-Fix: Moved PowerGood signal to interrupt pin.
+-Device doesn't wake when plugged in while asleep
+Fix: Moved PowerGood signal to interrupt pin
+-Charge controller couldn't recover from fully discharged and isolated battery
+Fix: Controller for some reason *requires* USB input to start up with no battery input: routed those connections
 
 ##Issues:
 -Opening serial port causes a reset. This is by design, but GUI can't cope [Workaround: removed C4; this means firmware is not user updateable] May include manual reset button later to allow user updates.
